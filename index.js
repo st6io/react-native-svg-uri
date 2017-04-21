@@ -28,6 +28,7 @@ const ACEPTED_SVG_ELEMENTS = [
   'g',
   'circle',
   'path',
+  'line',
   'rect',
   'defs',
   'linearGradient',
@@ -40,13 +41,15 @@ const ACEPTED_SVG_ELEMENTS = [
 // Attributes from SVG elements that are mapped directly.
 const SVG_ATTS = ['viewBox'];
 const G_ATTS = ['id'];
-const CIRCLE_ATTS = ['cx', 'cy', 'r', 'fill', 'stroke'];
-const PATH_ATTS = ['d', 'fill', 'stroke'];
-const RECT_ATTS = ['width', 'height', 'fill', 'stroke', 'x', 'y'];
+const SHAPE_ATTS = ['fill', 'stroke', 'opacity'];
+const CIRCLE_ATTS = [...SHAPE_ATTS, 'cx', 'cy', 'r'];
+const PATH_ATTS = [...SHAPE_ATTS, 'd'];
+const LINE_ATTS = [...SHAPE_ATTS, 'x1', 'y1', 'x2', 'y2'];
+const RECT_ATTS = [...SHAPE_ATTS, 'width', 'height', 'x', 'y'];
 const LINEARG_ATTS = ['id', 'x1', 'y1', 'x2', 'y2', 'gradientUnits'];
 const RADIALG_ATTS = ['id', 'cx', 'cy', 'r', 'gradientUnits'];
 const STOP_ATTS = ['offset', 'stopColor'];
-const ELLIPSE_ATTS = ['fill', 'cx', 'cy', 'rx', 'ry'];
+const ELLIPSE_ATTS = [...SHAPE_ATTS, 'cx', 'cy', 'rx', 'ry'];
 const POLYGON_ATTS = ['points'];
 
 let ind = 0;
@@ -65,20 +68,20 @@ class SvgUri extends Component{
 
     this.isComponentMounted   = false;
 
-    // Gets the image data from an URL or a static file
-    if (props.source) {
-        const source = resolveAssetSource(props.source) || {};
-        this.fecthSVGData(source.uri);
+        // Gets the image data from an URL or a static file
+        if (props.source) {
+            const source = resolveAssetSource(props.source) || {};
+            this.fecthSVGData(source.uri);
+        }
     }
-	}
 
-  componentWillMount() {
-      this.isComponentMounted = true;
-  }
+    componentWillMount() {
+        this.isComponentMounted = true;
+    }
 
-  componentWillUnmount() {
-      this.isComponentMounted = false
-  }
+    componentWillUnmount() {
+        this.isComponentMounted = false
+    }
 
   componentWillReceiveProps (nextProps){
     if (nextProps.source) {
@@ -110,49 +113,52 @@ class SvgUri extends Component{
         let componentAtts = {};
         let i = ind++;
         switch (node.nodeName) {
-        case 'svg':
-             componentAtts = this.obtainComponentAtts(node, SVG_ATTS);
-             if (this.props.width)
-                componentAtts.width = this.props.width;
-             if (this.props.height)
-                componentAtts.height = this.props.height;
+            case 'svg':
+                componentAtts = this.obtainComponentAtts(node, SVG_ATTS);
+                if (this.props.width)
+                    componentAtts.width = this.props.width;
+                if (this.props.height)
+                    componentAtts.height = this.props.height;
 
-             return <Svg key={i} {...componentAtts}>{childs}</Svg>;
-        case 'g':
-             componentAtts = this.obtainComponentAtts(node, G_ATTS);
-            return <G key={i} {...componentAtts}>{childs}</G>;
-        case 'path':
-             componentAtts = this.obtainComponentAtts(node, PATH_ATTS);
-            return <Path key={i} {...componentAtts}>{childs}</Path>;
-        case 'circle':
-             componentAtts = this.obtainComponentAtts(node, CIRCLE_ATTS);
-            return <Circle key={i} {...componentAtts}>{childs}</Circle>;
-        case 'rect':
-             componentAtts = this.obtainComponentAtts(node, RECT_ATTS);
-            return <Rect key={i} {...componentAtts}>{childs}</Rect>;
-        case 'defs': 
-            return <Defs key={i}>{childs}</Defs>;
-        case 'linearGradient':
-             componentAtts = this.obtainComponentAtts(node, LINEARG_ATTS);
-            return <LinearGradient key={i} {...componentAtts}>{childs}</LinearGradient>;
-        case 'radialGradient':
-             componentAtts = this.obtainComponentAtts(node, RADIALG_ATTS);
-            return <RadialGradient key={i} {...componentAtts}>{childs}</RadialGradient>;
-        case 'stop':
-             componentAtts = this.obtainComponentAtts(node, STOP_ATTS);
-            return <Stop key={i} {...componentAtts}>{childs}</Stop>;
-        case 'ellipse':
-             componentAtts = this.obtainComponentAtts(node, ELLIPSE_ATTS);
-            return <Ellipse key={i} {...componentAtts}>{childs}</Ellipse>;
-        case 'polygon':
-             componentAtts = this.obtainComponentAtts(node, POLYGON_ATTS);
-            return <Polygon key={i} {...componentAtts}>{childs}</Polygon>;
-        default:
-          return null;
+                return <Svg key={i} {...componentAtts}>{childs}</Svg>;
+            case 'g':
+                componentAtts = this.obtainComponentAtts(node, G_ATTS);
+                return <G key={i} {...componentAtts}>{childs}</G>;
+            case 'path':
+                componentAtts = this.obtainComponentAtts(node, PATH_ATTS);
+                return <Path key={i} {...componentAtts}>{childs}</Path>;
+            case 'line':
+                componentAtts = this.obtainComponentAtts(node, LINE_ATTS);
+                return <Line key={i} {...componentAtts}>{childs}</Line>;
+            case 'circle':
+                componentAtts = this.obtainComponentAtts(node, CIRCLE_ATTS);
+                return <Circle key={i} {...componentAtts}>{childs}</Circle>;
+            case 'rect':
+                componentAtts = this.obtainComponentAtts(node, RECT_ATTS);
+                return <Rect key={i} {...componentAtts}>{childs}</Rect>;
+            case 'defs':
+                return <Defs key={i}>{childs}</Defs>;
+            case 'linearGradient':
+                componentAtts = this.obtainComponentAtts(node, LINEARG_ATTS);
+                return <LinearGradient key={i} {...componentAtts}>{childs}</LinearGradient>;
+            case 'radialGradient':
+                componentAtts = this.obtainComponentAtts(node, RADIALG_ATTS);
+                return <RadialGradient key={i} {...componentAtts}>{childs}</RadialGradient>;
+            case 'stop':
+                componentAtts = this.obtainComponentAtts(node, STOP_ATTS);
+                return <Stop key={i} {...componentAtts}>{childs}</Stop>;
+            case 'ellipse':
+                componentAtts = this.obtainComponentAtts(node, ELLIPSE_ATTS);
+                return <Ellipse key={i} {...componentAtts}>{childs}</Ellipse>;
+            case 'polygon':
+                componentAtts = this.obtainComponentAtts(node, POLYGON_ATTS);
+                return <Polygon key={i} {...componentAtts}>{childs}</Polygon>;
+            default:
+                return null;
         }
-  }
+    }
 
-  obtainComponentAtts({attributes}, enabledAttributes) {
+obtainComponentAtts({attributes}, enabledAttributes) {
     let styleAtts = {};
     Array.from(attributes).forEach(({nodeName, nodeValue}) => {
                 Object.assign(styleAtts, utils.transformStyle(nodeName, nodeValue, this.props.fill));
